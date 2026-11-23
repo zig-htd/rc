@@ -1,6 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const rc = @import("zig_rc");
+const rc = @import("rc");
 
 const Person = struct {
     name: []u8,
