@@ -11,10 +11,11 @@ const Person = struct {
 
     pub fn deinit(self: *Person, allocator: Allocator) void {
         allocator.free(self.name);
+        self.* = undefined;
     }
 
     /// 实现 `rc.Interface.clone`
-    pub fn clone(self: *const Person, allocator: Allocator) Allocator.Error!Person { // 确保返回一个深克隆的副本
+    pub fn clone(self: *const Person, allocator: Allocator) Allocator.Error!Person { // 返回一个深克隆的副本
         return Person.init(allocator, self.name);
     }
 
@@ -33,10 +34,11 @@ const Student = struct {
 
     pub fn deinit(self: *Student, allocator: Allocator) void {
         allocator.free(self.name);
+        self.* = undefined;
     }
 
     /// 实现 `rc.Interface.clone`
-    pub fn clone(self: *const Student, allocator: Allocator) Allocator.Error!Student { // 确保返回一个深克隆的副本
+    pub fn clone(self: *const Student, allocator: Allocator) Allocator.Error!Student { // 返回一个深克隆的副本
         return Student.init(allocator, self.name);
     }
 
@@ -75,6 +77,8 @@ pub fn main(init: std.process.Init) !void {
     // 放到一个容器中
     const list: [2]rc.AnyAtomicShared = .{ shared_p3, shared_s1 };
     for (list) |item| {
-        item.release(a); // 即使 item 的原始数据类型不同，但 AnyAtomicShared 容器提供了统一的原语和类型兼容
+        // 即使 item 的原始数据类型不同，但 AnyAtomicShared
+        // 容器提供了统一的原语和类型兼容
+        item.release(a);
     }
 }

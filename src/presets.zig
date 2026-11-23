@@ -14,14 +14,14 @@ pub const AnyAtomicShared = struct {
 
         comptime {
             if (info != .pointer or info.pointer.size != .one) {
-                @compileError("AnyAtomicShared.new expects a single-item pointer (*T or *const T), found '" ++ @typeName(P) ++ "'");
+                @compileError("AnyAtomicShared.new expects a single-item pointer, found '" ++ @typeName(P) ++ "'");
             }
         }
 
         const T = info.pointer.child;
-        const interface = Interface{
+        const interface: Interface = .{
             .ptr = ptr,
-            .vtable = Interface.VTable.from(T),
+            .vtable = VTable.from(T),
         };
         return .{
             .shared = try AtomicShared(Interface).new(allocator, &interface),

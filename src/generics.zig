@@ -6,7 +6,7 @@ pub fn AtomicShared(comptime T: type) type {
     helper.requireCloneable(T);
 
     return struct {
-        pub const __super__ = .atomic_shared; // 写入一个固定标记，让外部在编译期可以判断它是 AtomicShared
+        pub const __super__ = .atomic_shared; // 让外部可以判断它是 AtomicShared
         const Self = @This();
 
         const Storage = union(enum) {
@@ -21,7 +21,7 @@ pub fn AtomicShared(comptime T: type) type {
             storage: Storage,
         };
 
-        inner: *Inner, // AtomicShared 没有自己的状态，所有副本都将指向一个 inner 实例。复制结构体是安全的。
+        inner: *Inner, // 所有副本都将指向一个 inner 实例
 
         /// 深克隆 `src`，AtomicShared 拥有数据拷贝。初始计数为 `1`。
         pub fn new(allocator: Allocator, src: *const T) Allocator.Error!Self {
@@ -219,13 +219,15 @@ test "fromOwned borrows the data and takes responsibility for release" {
 
 test "plain-data type with trivial clone and release" {
     const Point = struct {
+        const Self = @This();
+
         x: i32,
         y: i32,
 
-        pub fn clone(self: *const @This(), _: Allocator) Allocator.Error!@This() {
+        pub fn clone(self: *const Self, _: Allocator) Allocator.Error!Self {
             return self.*;
         }
-        pub fn release(_: *@This(), _: Allocator) void {}
+        pub fn release(_: *Self, _: Allocator) void {}
     };
 
     const a = testing.allocator;
